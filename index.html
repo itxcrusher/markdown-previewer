@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Previewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js for Markdown to HTML conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #editor {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom styles for the preview pane */
+        .preview-content {
+            all: revert; /* Reset styles to browser defaults */
+        }
+        .preview-content h1, .preview-content h2, .preview-content h3 {
+            border-bottom: 1px solid #475569; /* slate-600 */
+            padding-bottom: 0.3em;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+        .preview-content h1 { font-size: 2em; font-weight: 600; }
+        .preview-content h2 { font-size: 1.5em; font-weight: 600; }
+        .preview-content h3 { font-size: 1.25em; font-weight: 600; }
+        .preview-content p { margin-bottom: 16px; line-height: 1.6; }
+        .preview-content a { color: #38bdf8; /* sky-400 */ text-decoration: underline; }
+        .preview-content ul, .preview-content ol { margin-left: 20px; margin-bottom: 16px; }
+        .preview-content li { margin-bottom: 4px; }
+        .preview-content code {
+            font-family: 'Fira Code', monospace;
+            background-color: #334155; /* slate-700 */
+            padding: 0.2em 0.4em;
+            font-size: 85%;
+            border-radius: 6px;
+        }
+        .preview-content pre {
+            background-color: #1e293b; /* slate-800 */
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #475569; /* slate-600 */
+        }
+        .preview-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        .preview-content blockquote {
+            border-left: 4px solid #475569; /* slate-600 */
+            padding-left: 16px;
+            color: #94a3b8; /* slate-400 */
+            margin-left: 0;
+            margin-bottom: 16px;
+        }
+        .preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        .preview-content th, .preview-content td {
+            border: 1px solid #475569; /* slate-600 */
+            padding: 8px 12px;
+        }
+        .preview-content th {
+            background-color: #334155; /* slate-700 */
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 flex flex-col h-screen antialiased">
+    <header class="text-center py-4 border-b border-slate-700 shadow-md bg-slate-800">
+        <h1 class="text-2xl font-bold text-white">Markdown Live Previewer</h1>
+    </header>
+
+    <main class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-hidden">
+        <!-- Editor Pane -->
+        <div class="flex flex-col h-full">
+            <label for="editor" class="text-sm font-semibold mb-2 px-2 text-slate-400">MARKDOWN EDITOR</label>
+            <textarea id="editor" class="w-full h-full flex-grow bg-slate-800 text-white rounded-lg p-4 border-2 border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-none"></textarea>
+        </div>
+
+        <!-- Preview Pane -->
+        <div class="flex flex-col h-full">
+            <label for="preview" class="text-sm font-semibold mb-2 px-2 text-slate-400">LIVE PREVIEW</label>
+            <div id="preview" class="w-full h-full flex-grow bg-slate-800 text-slate-200 rounded-lg p-6 border-2 border-slate-700 overflow-y-auto preview-content"></div>
+        </div>
+    </main>
+
+    <script>
+        // DOM element references
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+
+        // Initial content to guide the user
+        const initialMarkdown = `# Welcome to the Markdown Previewer!
+
+## Type your Markdown on the left...
+...and see the rendered HTML on the right.
+
+### Key Features
+- **Live Updates:** Renders as you type.
+- **GitHub Flavored Markdown:** Supports tables, code blocks, and more.
+
+\`\`\`javascript
+// Here's some example code:
+function greet(name) {
+  console.log(\`Hello, \${name}!\`);
+}
+\`\`\`
+
+> This is a blockquote. A classic.
+
+- List item one
+- List item two
+
+Check out the [marked.js](https://marked.js.org/) library, which powers this preview.
+`;
+
+        // Function to update the preview
+        function updatePreview() {
+            const markdownText = editor.value;
+            preview.innerHTML = marked.parse(markdownText);
+        }
+
+        // --- Event Listener ---
+        editor.addEventListener('input', updatePreview);
+
+        // --- Initialization ---
+        // Set initial content and render it
+        editor.value = initialMarkdown;
+        updatePreview();
+    </script>
+</body>
+</html>
+
