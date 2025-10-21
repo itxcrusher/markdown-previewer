@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Previewer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- Marked.js for Markdown to HTML conversion -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,32 +25,50 @@
         /* Custom styles for the preview pane */
         .preview-content {
             all: revert; /* Reset styles to browser defaults */
+            color: #334155; /* slate-700 */
+            line-height: 1.6;
+        }
+        .dark .preview-content {
+            color: #cbd5e1; /* slate-300 */
         }
         .preview-content h1, .preview-content h2, .preview-content h3 {
-            border-bottom: 1px solid #475569; /* slate-600 */
             padding-bottom: 0.3em;
             margin-top: 24px;
             margin-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .dark .preview-content h1, .dark .preview-content h2, .dark .preview-content h3 {
+            border-bottom: 1px solid #475569; /* slate-600 */
         }
         .preview-content h1 { font-size: 2em; font-weight: 600; }
         .preview-content h2 { font-size: 1.5em; font-weight: 600; }
         .preview-content h3 { font-size: 1.25em; font-weight: 600; }
-        .preview-content p { margin-bottom: 16px; line-height: 1.6; }
-        .preview-content a { color: #38bdf8; /* sky-400 */ text-decoration: underline; }
+        .preview-content p { margin-bottom: 16px; }
+        .preview-content a { color: #0ea5e9; /* sky-500 */ text-decoration: underline; }
+        .dark .preview-content a { color: #38bdf8; /* sky-400 */ }
         .preview-content ul, .preview-content ol { margin-left: 20px; margin-bottom: 16px; }
         .preview-content li { margin-bottom: 4px; }
         .preview-content code {
             font-family: 'Fira Code', monospace;
-            background-color: #334155; /* slate-700 */
+            background-color: #f1f5f9; /* slate-100 */
+            color: #1e293b; /* slate-800 */
             padding: 0.2em 0.4em;
             font-size: 85%;
             border-radius: 6px;
         }
+        .dark .preview-content code {
+            background-color: #334155; /* slate-700 */
+            color: #f1f5f9; /* slate-100 */
+        }
         .preview-content pre {
-            background-color: #1e293b; /* slate-800 */
+            background-color: #f8fafc; /* slate-50 */
             padding: 16px;
             border-radius: 8px;
             overflow-x: auto;
+            border: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .dark .preview-content pre {
+            background-color: #1e293b; /* slate-800 */
             border: 1px solid #475569; /* slate-600 */
         }
         .preview-content pre code {
@@ -53,11 +76,15 @@
             padding: 0;
         }
         .preview-content blockquote {
-            border-left: 4px solid #475569; /* slate-600 */
+            border-left: 4px solid #cbd5e1; /* slate-300 */
             padding-left: 16px;
-            color: #94a3b8; /* slate-400 */
+            color: #64748b; /* slate-500 */
             margin-left: 0;
             margin-bottom: 16px;
+        }
+        .dark .preview-content blockquote {
+            border-left: 4px solid #475569; /* slate-600 */
+            color: #94a3b8; /* slate-400 */
         }
         .preview-content table {
             width: 100%;
@@ -65,30 +92,70 @@
             margin-bottom: 16px;
         }
         .preview-content th, .preview-content td {
-            border: 1px solid #475569; /* slate-600 */
+            border: 1px solid #cbd5e1; /* slate-300 */
             padding: 8px 12px;
         }
+        .dark .preview-content th, .dark .preview-content td {
+             border: 1px solid #475569; /* slate-600 */
+        }
         .preview-content th {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .dark .preview-content th {
             background-color: #334155; /* slate-700 */
         }
+        #hub-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 56px;
+            height: 56px;
+            background-color: #0ea5e9; /* sky-500 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        }
+        #hub-bubble:hover {
+            transform: scale(1.1);
+            background-color: #0284c7; /* sky-600 */
+        }
     </style>
+     <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+    </script>
 </head>
-<body class="bg-slate-900 text-slate-200 flex flex-col h-screen antialiased">
-    <header class="text-center py-4 border-b border-slate-700 shadow-md bg-slate-800">
-        <h1 class="text-2xl font-bold text-white">Markdown Live Previewer</h1>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-200 flex flex-col h-screen antialiased transition-colors duration-300">
+    <header class="text-center py-4 border-b border-slate-200 dark:border-slate-700 shadow-md bg-white dark:bg-slate-800 relative">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Markdown Live Previewer</h1>
+        <!-- Theme Toggle Button -->
+        <div class="absolute top-1/2 -translate-y-1/2 right-4 sm:right-6">
+            <button id="theme-toggle" type="button" title="Toggle light/dark mode" class="bg-slate-100 dark:bg-slate-700 p-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-200">
+                <svg id="theme-toggle-sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun hidden"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg id="theme-toggle-moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon hidden"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </button>
+        </div>
     </header>
 
     <main class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-hidden">
         <!-- Editor Pane -->
         <div class="flex flex-col h-full">
-            <label for="editor" class="text-sm font-semibold mb-2 px-2 text-slate-400">MARKDOWN EDITOR</label>
-            <textarea id="editor" class="w-full h-full flex-grow bg-slate-800 text-white rounded-lg p-4 border-2 border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-none"></textarea>
+            <label for="editor" class="text-sm font-semibold mb-2 px-2 text-slate-500 dark:text-slate-400">MARKDOWN EDITOR</label>
+            <textarea id="editor" class="w-full h-full flex-grow bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-lg p-4 border-2 border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-none"></textarea>
         </div>
 
         <!-- Preview Pane -->
         <div class="flex flex-col h-full">
-            <label for="preview" class="text-sm font-semibold mb-2 px-2 text-slate-400">LIVE PREVIEW</label>
-            <div id="preview" class="w-full h-full flex-grow bg-slate-800 text-slate-200 rounded-lg p-6 border-2 border-slate-700 overflow-y-auto preview-content"></div>
+            <label for="preview" class="text-sm font-semibold mb-2 px-2 text-slate-500 dark:text-slate-400">LIVE PREVIEW</label>
+            <div id="preview" class="w-full h-full flex-grow bg-white dark:bg-slate-800 rounded-lg p-6 border-2 border-slate-300 dark:border-slate-700 overflow-y-auto preview-content"></div>
         </div>
     </main>
 
@@ -97,7 +164,6 @@
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
 
-        // Initial content to guide the user
         const initialMarkdown = `# Welcome to the Markdown Previewer!
 
 ## Type your Markdown on the left...
@@ -128,37 +194,39 @@ Check out the [marked.js](https://marked.js.org/) library, which powers this pre
             preview.innerHTML = marked.parse(markdownText);
         }
 
-        // --- Event Listener ---
         editor.addEventListener('input', updatePreview);
-
-        // --- Initialization ---
-        // Set initial content and render it
         editor.value = initialMarkdown;
         updatePreview();
+        
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('theme-toggle-sun-icon');
+        const moonIcon = document.getElementById('theme-toggle-moon-icon');
+
+        const updateIcons = () => {
+            if (document.documentElement.classList.contains('dark')) {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        };
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+            updateIcons();
+        });
+
+        updateIcons();
     </script>
-    <!-- Floating Hub Button Snippet -->
-    <style>
-        #hub-bubble {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 56px;
-            height: 56px;
-            background-color: #0ea5e9; /* sky-500 */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
-        }
-        #hub-bubble:hover {
-            transform: scale(1.1);
-            background-color: #0284c7; /* sky-600 */
-        }
-    </style>
     
+    <!-- Floating Hub Button Snippet -->
     <a href="https://muhammadhassaanjaved.com/tools.html" id="hub-bubble" title="View All Tools" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7"></rect>
@@ -170,4 +238,3 @@ Check out the [marked.js](https://marked.js.org/) library, which powers this pre
     <!-- End of Snippet -->
 </body>
 </html>
-
